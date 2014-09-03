@@ -12,8 +12,9 @@ Under the "Examples" folder are a number of console applications. The TopicBusCo
 for any of the other examples to work.
 
 To start I suggest:
-1. Build all!
-2. Run the TopicBusConsole.
-3. Run the TopicBusSubscriber
-4. Run the TopicBusCachingPublisher.
-5. Note the published messages appearing in the subscriber.
+
+1.  Build all!
+2.  Run the TopicBusConsole.
+3.  Run the TopicBusSubscriber
+4.  Run the TopicBusCachingPublisher.
+5.  Note the published messages appearing in the subscriber.
