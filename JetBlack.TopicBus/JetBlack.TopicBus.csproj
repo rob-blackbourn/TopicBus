@@ -44,7 +44,6 @@
     <Compile Include="IO\ISerializer.cs" />
     <Compile Include="IO\NetworkBitConverter.cs" />
     <Compile Include="IO\NetworkExtensions.cs" />
-    <Compile Include="IO\SimpleSerializer.cs" />
     <Compile Include="Messages\ForwardedSubscriptionRequest.cs" />
     <Compile Include="Messages\Message.cs" />
     <Compile Include="Messages\MessageType.cs" />
