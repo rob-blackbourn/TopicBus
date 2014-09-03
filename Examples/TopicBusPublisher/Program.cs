@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Net;
 using JetBlack.TopicBus.Adapters;
-using JetBlack.TopicBus.IO;
+using JetBlack.TopicBus.Config;
 
 namespace TopicBusPublisher
 {
@@ -10,8 +11,12 @@ namespace TopicBusPublisher
     {
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
+
+            var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
+
             // Create a client.
-            Client client = new Client(new BinarySerializer());
+            Client client = new Client(config.DefaultConfig);
 
             // Attempt to connect.
             try

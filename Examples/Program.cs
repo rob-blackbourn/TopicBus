@@ -11,7 +11,7 @@ namespace TopicBusConsole
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var config = (TopicBusConfigurationSectionHandler)ConfigurationManager.GetSection("simpleTopicBusDistributor");
+            var config = (DistributorConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusDistributor");
 
             var server = new Server(config.DefaultConfig);
 

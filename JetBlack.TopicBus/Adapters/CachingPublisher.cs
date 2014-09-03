@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBlack.TopicBus.IO;
+using JetBlack.TopicBus.Config;
 
 namespace JetBlack.TopicBus.Adapters
 {
@@ -18,17 +18,17 @@ namespace JetBlack.TopicBus.Adapters
             public readonly Dictionary<string, object> Data = new Dictionary<string, object>();
         }
 
-        readonly Dictionary<string, CacheItem> topicCache = new Dictionary<string, CacheItem>();
+        readonly Dictionary<string, CacheItem> _topicCache = new Dictionary<string, CacheItem>();
 
-        readonly Client client;
+        readonly Client _client;
 
-        public CachingPublisher(ISerializer serializer)
+        public CachingPublisher(ClientConfig clientConfig)
         {
-            client = new Client(serializer);
+            _client = new Client(clientConfig);
 
-            client.OnForwardedSubscription += OnForwardedSubscription;
-            client.OnData += RaiseOnData;
-            client.OnClosed += RaiseOnClosed;
+            _client.OnForwardedSubscription += OnForwardedSubscription;
+            _client.OnData += RaiseOnData;
+            _client.OnClosed += RaiseOnClosed;
         }
 
         void RaiseOnClosed(bool isAbnormal)
@@ -41,72 +41,63 @@ namespace JetBlack.TopicBus.Adapters
         {
             if (isAdd)
             {
-                lock (topicCache)
+                lock (_topicCache)
                 {
                     // Have we received a subscription or published data on this topic yet?
-                    if (!topicCache.ContainsKey(topic))
-                        topicCache.Add(topic, new CacheItem());
+                    if (!_topicCache.ContainsKey(topic))
+                        _topicCache.Add(topic, new CacheItem());
 
                     // Has this client already subscribed to this topic?
-                    if (!topicCache[topic].ClientStates.ContainsKey(clientId))
+                    if (!_topicCache[topic].ClientStates.ContainsKey(clientId))
                     {
                         // Add the client to the cache item, and indicate that we have not yet sent an image.
-                        topicCache[topic].ClientStates.Add(clientId, false);
+                        _topicCache[topic].ClientStates.Add(clientId, false);
                     }
 
-                    if (!topicCache[topic].ClientStates[clientId])
+                    if (!_topicCache[topic].ClientStates[clientId])
                     {
                         // Send the image and mark this client appropriately.
-                        topicCache[topic].ClientStates[clientId] = true;
-                        client.Send(clientId, topic, true, topicCache[topic].Data);
+                        _topicCache[topic].ClientStates[clientId] = true;
+                        _client.Send(clientId, topic, true, _topicCache[topic].Data);
                     }
                 }
             }
             else
             {
-                lock (topicCache)
+                lock (_topicCache)
                 {
                     // Have we received a subscription or published data on this topic yet?
-                    if (topicCache.ContainsKey(topic))
+                    if (_topicCache.ContainsKey(topic))
                     {
                         // Does this topic have this client?
-                        if (topicCache[topic].ClientStates.ContainsKey(clientId))
+                        if (_topicCache[topic].ClientStates.ContainsKey(clientId))
                         {
-                            topicCache[topic].ClientStates.Remove(clientId);
+                            _topicCache[topic].ClientStates.Remove(clientId);
 
                             // If there are no clients and no data remove the item.
-                            if (topicCache[topic].ClientStates.Count == 0 && topicCache[topic].Data.Count == 0)
-                                topicCache.Remove(topic);
+                            if (_topicCache[topic].ClientStates.Count == 0 && _topicCache[topic].Data.Count == 0)
+                                _topicCache.Remove(topic);
                         }
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// Connect to a distributor.
-        /// </summary>
-        /// <param name="host">The host name of the distributor.</param>
-        /// <param name="port">The port on which the distributor is listening.</param>
-        /// <returns></returns>
+        public bool Connect()
+        {
+            return _client.Connect();
+        }
+
         public bool Connect(string host, int port)
         {
-            return client.Connect(host, port);
+            return _client.Connect(host, port);
         }
 
-        /// <summary>
-        /// Close this client.
-        /// </summary>
         public void Close()
         {
-            client.Close();
+            _client.Close();
         }
 
-        /// <summary>
-        /// Publish data.
-        /// </summary>
-        /// <param name="topic">The topic on which the data will be published.</param>
-        /// <param name="data">The data to be published.</param>
         public void Publish(string topic, IDictionary<string, object> data)
         {
             Publish(topic, false, data);
@@ -116,8 +107,8 @@ namespace JetBlack.TopicBus.Adapters
         {
             // If the topic is not in the cache add it.
             CacheItem cacheItem;
-            if (!topicCache.TryGetValue(topic, out cacheItem))
-                topicCache.Add(topic, cacheItem = new CacheItem());
+            if (!_topicCache.TryGetValue(topic, out cacheItem))
+                _topicCache.Add(topic, cacheItem = new CacheItem());
 
             // Bring the cache data up to date.
             if (data != null)
@@ -131,52 +122,36 @@ namespace JetBlack.TopicBus.Adapters
                 foreach (var clientId in cacheItem.ClientStates.Keys.ToArray())
                 {
                     if (cacheItem.ClientStates[clientId])
-                        client.Send(clientId, topic, isImage, data);
+                        _client.Send(clientId, topic, isImage, data);
                     else
                     {
-                        client.Send(clientId, topic, true, cacheItem.Data);
+                        _client.Send(clientId, topic, true, cacheItem.Data);
                         cacheItem.ClientStates[clientId] = true;
                     }
                 }
             }
             else
-                client.Publish(topic, isImage, data);
+                _client.Publish(topic, isImage, data);
         }
 
-        /// <summary>
-        /// Add a subscription to a topic.
-        /// </summary>
-        /// <param name="topic">The topic of interest.</param>
         public void AddSubscription(string topic)
         {
-            client.AddSubscription(topic);
+            _client.AddSubscription(topic);
         }
 
-        /// <summary>
-        /// Remove a subscription to a topic.
-        /// </summary>
-        /// <param name="topic">The unwanted topic.</param>
         public void RemoveSubscription(string topic)
         {
-            client.RemoveSubscription(topic);
+            _client.RemoveSubscription(topic);
         }
 
-        /// <summary>
-        /// Add a notification to a topic pattern.
-        /// </summary>
-        /// <param name="topicPattern">The regex to match against topics.</param>
         public void AddNotification(string topicPattern)
         {
-            client.AddNotification(topicPattern);
+            _client.AddNotification(topicPattern);
         }
 
-        /// <summary>
-        /// Remove a notification to a topic pattern.
-        /// </summary>
-        /// <param name="topicPattern">The previous requested regex.</param>
         public void RemoveNotification(string topicPattern)
         {
-            client.RemoveNotification(topicPattern);
+            _client.RemoveNotification(topicPattern);
         }
 
         void RaiseOnData(string topic, IDictionary<string, object> data, bool isImage)
@@ -184,5 +159,6 @@ namespace JetBlack.TopicBus.Adapters
             if (OnData != null)
                 OnData(topic, data, isImage);
         }
-    }}
+    }
+}
 

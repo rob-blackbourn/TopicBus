@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using JetBlack.TopicBus.Config;
 using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Messages;
 
@@ -21,18 +22,23 @@ namespace JetBlack.TopicBus.Adapters
 
         public event ClosedCallback OnClosed;
 
-        readonly ISerializer _serializer;
+        readonly ClientConfig _clientConfig;
         TcpClient _tcpClient;
         bool _isConnected;
         readonly Thread _thread;
         NetworkStream _networkStream;
         readonly object _syncObject = new object();
 
-        public Client(ISerializer serializer)
+        public Client(ClientConfig clientConfig)
         {
-            _serializer = serializer;
+            _clientConfig = clientConfig;
             _isConnected = false;
             _thread = new Thread(Dispatch);
+        }
+
+        public bool Connect()
+        {
+            return Connect(_clientConfig.Host, _clientConfig.Port);
         }
 
         public bool Connect(string host, int port)
@@ -108,7 +114,7 @@ namespace JetBlack.TopicBus.Adapters
             {
                 try
                 {
-                    Message message = Message.Read(_networkStream, _serializer.Deserialize);
+                    Message message = Message.Read(_networkStream, _clientConfig.Serializer.Deserialize);
 
                     switch (message.MessageType)
                     {
@@ -169,7 +175,7 @@ namespace JetBlack.TopicBus.Adapters
 
         void Write(Message message)
         {
-            message.Write(_networkStream, _serializer.Serialize);
+            message.Write(_networkStream, _clientConfig.Serializer.Serialize);
         }
 
         void RaiseOnForwardedSubscriptionRequest(ForwardedSubscriptionRequest message)

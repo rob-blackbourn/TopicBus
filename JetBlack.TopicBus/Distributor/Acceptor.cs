@@ -17,9 +17,9 @@ namespace JetBlack.TopicBus.Distributor
         int _nextInteractorId;
         readonly TcpListener _listener;
         readonly ISerializer _serializer;
-        readonly Adapter _adapter;
+        readonly DistributorConfig _adapter;
 
-        public Acceptor(Adapter adapter)
+        public Acceptor(DistributorConfig adapter)
         {
             _adapter = adapter;
 

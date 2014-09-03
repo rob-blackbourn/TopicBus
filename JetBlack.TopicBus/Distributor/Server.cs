@@ -10,7 +10,7 @@ namespace JetBlack.TopicBus.Distributor
 
         readonly Market _market;
 
-        public Server(Adapter adapter)
+        public Server(DistributorConfig adapter)
         {
             Log.Info("Starting server");
 

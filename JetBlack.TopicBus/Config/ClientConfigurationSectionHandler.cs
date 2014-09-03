@@ -7,20 +7,20 @@ using log4net;
 
 namespace JetBlack.TopicBus.Config
 {
-    public class TopicBusConfigurationSectionHandler : IConfigurationSectionHandler
+    public class ClientConfigurationSectionHandler : IConfigurationSectionHandler
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(TopicBusConfigurationSectionHandler));
+        static readonly ILog Log = LogManager.GetLogger(typeof(ClientConfigurationSectionHandler));
 
-        Dictionary<string, Adapter> _adapters;
+        Dictionary<string, ClientConfig> _adapters;
 
         public string DefaultName { get; set; }
 
-        public Adapter this[string name]
+        public ClientConfig this[string name]
         {
             get { return _adapters.ContainsKey(name) ? _adapters[name] : null; }
         }
 
-        public Adapter DefaultConfig
+        public ClientConfig DefaultConfig
         {
             get { return this[DefaultName]; }
         }
@@ -58,9 +58,9 @@ namespace JetBlack.TopicBus.Config
             return this;
         }
 
-        static Dictionary<string, Adapter> CreateAdapters(XmlNodeList xmlNodeList)
+        static Dictionary<string, ClientConfig> CreateAdapters(XmlNodeList xmlNodeList)
         {
-            var adapters = new Dictionary<string, Adapter>();
+            var adapters = new Dictionary<string, ClientConfig>();
 
             foreach (XmlElement xmlElement in xmlNodeList)
             {
@@ -77,12 +77,19 @@ namespace JetBlack.TopicBus.Config
             return adapters;
         }
 
-        static Adapter CreateAdapter(XmlElement xmlElement)
+        static ClientConfig CreateAdapter(XmlElement xmlElement)
         {
             string name = xmlElement.GetAttribute("name");
             if (string.IsNullOrEmpty(name))
             {
                 Log.Error("Unable to read adapter configuration for tag \"name\"");
+                return null;
+            }
+
+            string host = xmlElement.GetAttribute("host");
+            if (string.IsNullOrEmpty(host))
+            {
+                Log.Error("Unable to read adapter configuration for tag \"host\"");
                 return null;
             }
 
@@ -101,8 +108,7 @@ namespace JetBlack.TopicBus.Config
             }
             var serializer = (ISerializer)Activator.CreateInstance(serializerType);
 
-            return new Adapter(name, port, serializer);
+            return new ClientConfig(name, host, port, serializer);
         }
-    }
-}
+    }}
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using JetBlack.TopicBus.Adapters;
 using System.Net;
 using JetBlack.TopicBus.IO;
+using System.Configuration;
+using JetBlack.TopicBus.Config;
 
 namespace TopicBusSubscriber
 {
@@ -10,8 +12,12 @@ namespace TopicBusSubscriber
     {
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
+
+            var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
+
             // Create a client.
-            Client client = new Client(new BinarySerializer());
+            Client client = new Client(config.DefaultConfig);
 
             try
             {
