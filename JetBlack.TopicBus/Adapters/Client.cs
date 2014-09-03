@@ -38,12 +38,7 @@ namespace JetBlack.TopicBus.Adapters
 
         public bool Connect()
         {
-            return Connect(_clientConfig.Host, _clientConfig.Port);
-        }
-
-        public bool Connect(string host, int port)
-        {
-            _tcpClient = new TcpClient(host, port);
+            _tcpClient = new TcpClient(_clientConfig.Host, _clientConfig.Port);
             _networkStream = _tcpClient.GetStream();
 
             _thread.Name = string.Format("interactor/{0}", _tcpClient.Client.RemoteEndPoint);

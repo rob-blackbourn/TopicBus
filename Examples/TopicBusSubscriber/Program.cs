@@ -22,7 +22,7 @@ namespace TopicBusSubscriber
             try
             {
                 // Assume the Distributor is running on the local machine.
-                client.Connect(Dns.GetHostName(), 9121);
+                client.Connect();
             }
             catch (Exception ex)
             {

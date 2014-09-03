@@ -88,11 +88,6 @@ namespace JetBlack.TopicBus.Adapters
             return _client.Connect();
         }
 
-        public bool Connect(string host, int port)
-        {
-            return _client.Connect(host, port);
-        }
-
         public void Close()
         {
             _client.Close();

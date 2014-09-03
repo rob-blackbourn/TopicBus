@@ -21,7 +21,7 @@ namespace TopicBusPublisher
             // Attempt to connect.
             try
             {
-                client.Connect(Dns.GetHostName(), 9121);
+                client.Connect();
             }
             catch (Exception ex)
             {
