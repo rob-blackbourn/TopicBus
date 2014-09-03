@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using JetBlack.TopicBus.Config;
-using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Messages;
 
 namespace JetBlack.TopicBus.Adapters
 {
-    public delegate void DataCallback(string topic, IDictionary<string, object> data, bool isImage);
+    public delegate void DataCallback(string topic, object data, bool isImage);
     public delegate void ForwardedSubscriptionCallback(int clientId, string topic, bool isAdd);
     public delegate void ClosedCallback(bool isAbnormal);
 
@@ -65,12 +63,12 @@ namespace JetBlack.TopicBus.Adapters
             Write(new SubscriptionRequest(topic, false));
         }
 
-        public void Send(int clientId, string topic, bool isImage, IDictionary<string, object> data)
+        public void Send(int clientId, string topic, bool isImage, object data)
         {
             Write(new UnicastDataMessage(clientId, topic, isImage, data));
         }
 
-        public void Publish(string topic, bool isImage, IDictionary<string, object> data)
+        public void Publish(string topic, bool isImage, object data)
         {
             Write(new MulticastDataMessage(topic, isImage, data));
         }
@@ -181,15 +179,15 @@ namespace JetBlack.TopicBus.Adapters
 
         void RaiseOnData(MulticastDataMessage message)
         {
-            RaiseOnData(message.Topic, (IDictionary<string,object>)message.Data, false);
+            RaiseOnData(message.Topic, message.Data, false);
         }
 
         void RaiseOnData(UnicastDataMessage message)
         {
-            RaiseOnData(message.Topic, (IDictionary<string,object>)message.Data, true);
+            RaiseOnData(message.Topic, message.Data, true);
         }
 
-        void RaiseOnData(string topic, IDictionary<string, object> data, bool isImage)
+        void RaiseOnData(string topic, object data, bool isImage)
         {
             if (OnData != null)
                 OnData(topic, data, isImage);

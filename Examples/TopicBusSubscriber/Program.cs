@@ -56,15 +56,15 @@ namespace TopicBusSubscriber
                 Environment.Exit(-1);
         }
 
-        static void OnData(string topic, IDictionary<string, object> data, bool isImage)
+        static void OnData(string topic, object data, bool isImage)
         {
             // Write out the data received. Note the message may be empty.
             Console.WriteLine("OnData: {0} {1}", topic, isImage);
             if (data == null)
                 Console.WriteLine("No Data");
-            else
+            else if (data is IDictionary<string, object>)
             {
-                foreach (KeyValuePair<string, object> pair in data)
+                foreach (var pair in (IDictionary<string, object>)data)
                     Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
             }
         }

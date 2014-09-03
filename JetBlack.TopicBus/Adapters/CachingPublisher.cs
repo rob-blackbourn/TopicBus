@@ -149,7 +149,7 @@ namespace JetBlack.TopicBus.Adapters
             _client.RemoveNotification(topicPattern);
         }
 
-        void RaiseOnData(string topic, IDictionary<string, object> data, bool isImage)
+        void RaiseOnData(string topic, object data, bool isImage)
         {
             if (OnData != null)
                 OnData(topic, data, isImage);
