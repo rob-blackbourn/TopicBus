@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{ADE93B6D-8BA9-4352-941D-6F27F92CC444}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>JetBlack.TopicBus</RootNamespace>
+    <AssemblyName>JetBlack.TopicBus</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Reactive.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="System.Reactive.Interfaces, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="System.Reactive.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>..\..\..\Downloads\log4net\log4net-1.2.13\bin\mono\2.0\release\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Reactive.PlatformServices, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IO\BinarySerializer.cs" />
+    <Compile Include="IO\ISerializer.cs" />
+    <Compile Include="IO\NetworkBitConverter.cs" />
+    <Compile Include="IO\NetworkExtensions.cs" />
+    <Compile Include="IO\SimpleSerializer.cs" />
+    <Compile Include="Messages\ForwardedSubscriptionRequest.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\MessageType.cs" />
+    <Compile Include="Messages\MulticastDataMessage.cs" />
+    <Compile Include="Messages\NotificationRequest.cs" />
+    <Compile Include="Messages\SubscriptionRequest.cs" />
+    <Compile Include="Messages\UnicastDataMessage.cs" />
+    <Compile Include="Distributor\Acceptor.cs" />
+    <Compile Include="Distributor\Interactor.cs" />
+    <Compile Include="Distributor\Market.cs" />
+    <Compile Include="Distributor\MessageBus.cs" />
+    <Compile Include="Distributor\NotificationManager.cs" />
+    <Compile Include="Distributor\PublisherManager.cs" />
+    <Compile Include="Distributor\Server.cs" />
+    <Compile Include="Distributor\SourceMessage.cs" />
+    <Compile Include="Distributor\SourceSinkMessage.cs" />
+    <Compile Include="Distributor\SubscriptionManager.cs" />
+    <Compile Include="Config\Adapter.cs" />
+    <Compile Include="Config\TopicBusConfigurationSectionHandler.cs" />
+    <Compile Include="Adapters\CachingPublisher.cs" />
+    <Compile Include="Adapters\Client.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="IO\" />
+    <Folder Include="Messages\" />
+    <Folder Include="Distributor\" />
+    <Folder Include="Config\" />
+    <Folder Include="Adapters\" />
+  </ItemGroup>
+</Project>

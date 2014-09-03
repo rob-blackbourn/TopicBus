@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.TopicBus", "JetBlack.TopicBus\JetBlack.TopicBus.csproj", "{ADE93B6D-8BA9-4352-941D-6F27F92CC444}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F2709BC3-B1BF-4A8A-8453-7A77F0061EF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopicBusConsole", "Examples\TopicBusConsole.csproj", "{99B8B9E7-CA29-47B6-AE09-9853386AFC00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopicBusSubscriber", "Examples\TopicBusSubscriber\TopicBusSubscriber.csproj", "{A3835884-7F19-42E2-AEF5-2BE5834029D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopicBusPublisher", "Examples\TopicBusPublisher\TopicBusPublisher.csproj", "{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopicBusCachingPublisher", "Examples\TopicBusCachingPublisher\TopicBusCachingPublisher.csproj", "{A1B125B0-3EEB-47C5-B440-FE4CE7198700}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99B8B9E7-CA29-47B6-AE09-9853386AFC00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99B8B9E7-CA29-47B6-AE09-9853386AFC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99B8B9E7-CA29-47B6-AE09-9853386AFC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99B8B9E7-CA29-47B6-AE09-9853386AFC00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B125B0-3EEB-47C5-B440-FE4CE7198700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B125B0-3EEB-47C5-B440-FE4CE7198700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B125B0-3EEB-47C5-B440-FE4CE7198700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B125B0-3EEB-47C5-B440-FE4CE7198700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3835884-7F19-42E2-AEF5-2BE5834029D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3835884-7F19-42E2-AEF5-2BE5834029D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3835884-7F19-42E2-AEF5-2BE5834029D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3835884-7F19-42E2-AEF5-2BE5834029D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADE93B6D-8BA9-4352-941D-6F27F92CC444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADE93B6D-8BA9-4352-941D-6F27F92CC444}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADE93B6D-8BA9-4352-941D-6F27F92CC444}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADE93B6D-8BA9-4352-941D-6F27F92CC444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{99B8B9E7-CA29-47B6-AE09-9853386AFC00} = {F2709BC3-B1BF-4A8A-8453-7A77F0061EF4}
+		{A3835884-7F19-42E2-AEF5-2BE5834029D0} = {F2709BC3-B1BF-4A8A-8453-7A77F0061EF4}
+		{AFD03D18-DF83-4D44-8116-4BF15E1EDAA1} = {F2709BC3-B1BF-4A8A-8453-7A77F0061EF4}
+		{A1B125B0-3EEB-47C5-B440-FE4CE7198700} = {F2709BC3-B1BF-4A8A-8453-7A77F0061EF4}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Examples\TopicBusConsole.csproj
+	EndGlobalSection
+EndGlobal
