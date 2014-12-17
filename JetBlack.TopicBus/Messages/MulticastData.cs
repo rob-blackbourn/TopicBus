@@ -18,7 +18,7 @@ namespace JetBlack.TopicBus.Messages
             Data = data;
         }
 
-        new static public MulticastData Read(Stream stream)
+        static public MulticastData ReadBody(Stream stream)
         {
             var topic = stream.ReadString();
             var isImage = stream.ReadBoolean();

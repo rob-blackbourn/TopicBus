@@ -20,7 +20,7 @@ namespace JetBlack.TopicBus.Messages
             Data = data;
         }
 
-        new static public UnicastData Read(Stream stream)
+        static public UnicastData ReadBody(Stream stream)
         {
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();

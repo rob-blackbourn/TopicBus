@@ -18,7 +18,7 @@ namespace JetBlack.TopicBus.Messages
             IsAdd = isAdd;
         }
 
-        new static public ForwardedSubscriptionRequest Read(Stream stream)
+        static public ForwardedSubscriptionRequest ReadBody(Stream stream)
         {
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();

@@ -14,23 +14,29 @@ namespace JetBlack.TopicBus.Messages
 
         public static Message Read(Stream stream)
         {
-            var messageType = (MessageType)stream.ReadByte();
+            var messageType = ReadHeader(stream);
 
             switch (messageType)
             {
                 case MessageType.MulticastData:
-                    return MulticastData.Read(stream);
+                    return MulticastData.ReadBody(stream);
                 case MessageType.UnicastData:
-                    return UnicastData.Read(stream);
+                    return UnicastData.ReadBody(stream);
                 case MessageType.ForwardedSubscriptionRequest:
-                    return ForwardedSubscriptionRequest.Read(stream);
+                    return ForwardedSubscriptionRequest.ReadBody(stream);
                 case MessageType.NotificationRequest:
-                    return NotificationRequest.Read(stream);
+                    return NotificationRequest.ReadBody(stream);
                 case MessageType.SubscriptionRequest:
-                    return SubscriptionRequest.Read(stream);
+                    return SubscriptionRequest.ReadBody(stream);
                 default:
                     throw new InvalidDataException("unknown message type");
             }
+        }
+
+        private static MessageType ReadHeader(Stream stream)
+        {
+            var messageType = (MessageType)stream.ReadByte();
+            return messageType;
         }
 
         public virtual Stream Write(Stream stream)

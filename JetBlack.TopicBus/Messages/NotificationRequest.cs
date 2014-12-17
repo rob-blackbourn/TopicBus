@@ -16,7 +16,7 @@ namespace JetBlack.TopicBus.Messages
             IsAdd = isAdd;
         }
 
-        new static public NotificationRequest Read(Stream stream)
+        static public NotificationRequest ReadBody(Stream stream)
         {
             var topicPattern = stream.ReadString();
             var isAdd = stream.ReadBoolean();
