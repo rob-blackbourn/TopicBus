@@ -7,9 +7,9 @@ using log4net;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class Market : IDisposable
+    class Market : IDisposable
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(SubscriptionManager));
+        static readonly ILog Log = LogManager.GetLogger(typeof(Market));
 
         readonly IList<Interactor> _interactors = new List<Interactor>();
         readonly IDisposable _listenerDisposable;

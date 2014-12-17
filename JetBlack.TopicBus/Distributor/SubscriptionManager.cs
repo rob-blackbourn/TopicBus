@@ -9,7 +9,7 @@ using JetBlack.TopicBus.Messages;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class SubscriptionManager : IDisposable
+    class SubscriptionManager : IDisposable
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(SubscriptionManager));
 

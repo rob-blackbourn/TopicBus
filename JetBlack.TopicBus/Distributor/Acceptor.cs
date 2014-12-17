@@ -9,7 +9,7 @@ using JetBlack.TopicBus.Config;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class Acceptor
+    class Acceptor
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(Acceptor));
 

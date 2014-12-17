@@ -1,6 +1,6 @@
 ﻿namespace JetBlack.TopicBus.Distributor
 {
-    public static class SourceMessage
+    static class SourceMessage
     {
         public static SourceMessage<T> Create<T>(Interactor source, T content)
         {
@@ -8,7 +8,7 @@
         }
     }
 
-    public class SourceMessage<T>
+    class SourceMessage<T>
     {
         public Interactor Source { get; private set; }
         public T Content { get; private set; }

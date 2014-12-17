@@ -7,9 +7,9 @@ using log4net;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class PublisherManager : IDisposable
+    class PublisherManager : IDisposable
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(SubscriptionManager));
+        static readonly ILog Log = LogManager.GetLogger(typeof(PublisherManager));
 
         readonly Dictionary<string, ISet<Interactor>> _topicToPublisherMap = new Dictionary<string, ISet<Interactor>>();
         readonly Dictionary<Interactor, ISet<string>> _publisherToTopicMap = new Dictionary<Interactor, ISet<string>>();

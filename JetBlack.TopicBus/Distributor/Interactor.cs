@@ -9,7 +9,7 @@ using JetBlack.TopicBus.Messages;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class Interactor : IDisposable, IEquatable<Interactor>, IComparable<Interactor>
+    class Interactor : IDisposable, IEquatable<Interactor>, IComparable<Interactor>
     {
         public readonly int Id;
         readonly TcpClient _tcpClient;

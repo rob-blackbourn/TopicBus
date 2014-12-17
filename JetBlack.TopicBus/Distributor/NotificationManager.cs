@@ -9,9 +9,9 @@ using log4net;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class NotificationManager : IDisposable
+    class NotificationManager : IDisposable
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(SubscriptionManager));
+        static readonly ILog Log = LogManager.GetLogger(typeof(NotificationManager));
 
         readonly Dictionary<string, Notification> _cache = new Dictionary<string, Notification>();
         readonly MessageBus _messageBus;

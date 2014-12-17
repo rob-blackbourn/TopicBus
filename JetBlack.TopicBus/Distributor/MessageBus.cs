@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace JetBlack.TopicBus.Distributor
 {
-    public class MessageBus
+    class MessageBus
     {
         public readonly ISubject<SourceMessage<SubscriptionRequest>> SubscriptionRequests = new Subject<SourceMessage<SubscriptionRequest>>();
         public readonly ISubject<ForwardedSubscriptionRequest> ForwardedSubscriptionRequests = new Subject<ForwardedSubscriptionRequest>();
