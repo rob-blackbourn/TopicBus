@@ -93,15 +93,7 @@ namespace JetBlack.TopicBus.Config
                 return null;
             }
 
-            Type serializerType = Type.GetType(xmlElement.GetAttribute("serializer"));
-            if (serializerType == null || !typeof(ISerializer).IsAssignableFrom(serializerType))
-            {
-                Log.Error("Unable to read adapter configuration for tag \"serializer\"");
-                return null;
-            }
-            var serializer = (ISerializer)Activator.CreateInstance(serializerType);
-
-            return new DistributorConfig(name, port, serializer);
+            return new DistributorConfig(name, port);
         }
     }
 }

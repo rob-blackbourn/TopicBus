@@ -14,6 +14,7 @@ namespace TopicBusSubscriber
         {
             log4net.Config.XmlConfigurator.Configure();
 
+
             var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
 
             // Create a client.

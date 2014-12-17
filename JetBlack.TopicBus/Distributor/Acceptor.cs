@@ -5,7 +5,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using log4net;
-using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Config;
 
 namespace JetBlack.TopicBus.Distributor
@@ -16,7 +15,6 @@ namespace JetBlack.TopicBus.Distributor
 
         int _nextInteractorId;
         readonly TcpListener _listener;
-        readonly ISerializer _serializer;
         readonly DistributorConfig _adapter;
 
         public Acceptor(DistributorConfig adapter)
@@ -25,7 +23,6 @@ namespace JetBlack.TopicBus.Distributor
 
             var endPoint = new IPEndPoint(IPAddress.Any, _adapter.Port);
             _listener = new TcpListener(endPoint);
-            _serializer = _adapter.Serializer;
         }
 
         public IObservable<Interactor> ToObservable()
@@ -46,7 +43,7 @@ namespace JetBlack.TopicBus.Distributor
                 while (true)
                 {
                     var tcpClient = _listener.AcceptTcpClient();
-                    var interactor = new Interactor(tcpClient, _nextInteractorId++, _serializer);
+                    var interactor = new Interactor(tcpClient, _nextInteractorId++);
                     Log.InfoFormat("Accepted new interactor: {0}", interactor);
                     observer.OnNext(interactor);
                 }

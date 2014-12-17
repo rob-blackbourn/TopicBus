@@ -18,7 +18,7 @@ namespace JetBlack.TopicBus.Messages
             IsAdd = isAdd;
         }
 
-        new static public ForwardedSubscriptionRequest Read(Stream stream, Func<Stream, object> dataReader)
+        new static public ForwardedSubscriptionRequest Read(Stream stream)
         {
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();
@@ -26,9 +26,9 @@ namespace JetBlack.TopicBus.Messages
             return new ForwardedSubscriptionRequest(clientId, topic, isAdd);
         }
 
-        public override Stream Write(Stream stream, Action<Stream,object> dataWriter)
+        public override Stream Write(Stream stream)
         {
-            base.Write(stream, dataWriter);
+            base.Write(stream);
             stream.Write(ClientId);
             stream.Write(Topic);
             stream.Write(IsAdd);

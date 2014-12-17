@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Messages;
 
 namespace JetBlack.TopicBus.Distributor
@@ -14,15 +13,12 @@ namespace JetBlack.TopicBus.Distributor
     {
         public readonly int Id;
         readonly TcpClient _tcpClient;
-        readonly ISerializer _serializer;
         readonly Stream _stream;
 
-        public Interactor(TcpClient tcpClient, int id, ISerializer serializer)
+        public Interactor(TcpClient tcpClient, int id)
         {
             _tcpClient = tcpClient;
             Id = id;
-            _serializer = serializer;
-
             _stream = tcpClient.GetStream();
         }
 
@@ -48,7 +44,7 @@ namespace JetBlack.TopicBus.Distributor
             {
                 while (_tcpClient.Connected)
                 {
-                    var message = Message.Read(_stream, _serializer.Deserialize);
+                    var message = Message.Read(_stream);
                     observer.OnNext(message);
                 }
             }
@@ -64,7 +60,7 @@ namespace JetBlack.TopicBus.Distributor
 
         public void SendMessage(Message message)
         {
-            message.Write(_stream, _serializer.Serialize);
+            message.Write(_stream);
         }
 
         public IPEndPoint LocalEndPoint

@@ -9,9 +9,9 @@ namespace JetBlack.TopicBus.Messages
         public readonly int ClientId;
         public readonly string Topic;
         public readonly bool IsImage;
-        public readonly object Data;
+        public readonly byte[] Data;
 
-        public UnicastDataMessage(int clientId, string topic, bool isImage, object data)
+        public UnicastDataMessage(int clientId, string topic, bool isImage, byte[] data)
             : base(MessageType.UnicastDataMessage)
         {
             ClientId = clientId;
@@ -20,22 +20,33 @@ namespace JetBlack.TopicBus.Messages
             Data = data;
         }
 
-        new static public UnicastDataMessage Read(Stream stream, Func<Stream,object> dataReader)
+        new static public UnicastDataMessage Read(Stream stream)
         {
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();
             var isImage = stream.ReadBoolean();
-            var data = dataReader(stream);
+            var nbytes = stream.ReadInt32();
+            var data = new byte[nbytes];
+            for (int i = 0; i < nbytes; ++i)
+            {
+                var b = stream.ReadByte();
+                if (b == -1)
+                    throw new EndOfStreamException();
+                data[i] = (byte)b;
+            }
             return new UnicastDataMessage(clientId, topic, isImage, data);
         }
 
-        public override Stream Write(Stream stream, Action<Stream,object> dataWriter)
+        public override Stream Write(Stream stream)
         {
-            base.Write(stream, dataWriter);
+            base.Write(stream);
             stream.Write(ClientId);
             stream.Write(Topic);
             stream.Write(IsImage);
-            dataWriter(stream, Data);
+            var data = Data ?? new byte[0];
+            stream.Write(data.Length);
+            for (int i = 0; i < data.Length; ++i)
+                stream.Write(data[i]);
             return stream;
         }
 

@@ -58,6 +58,7 @@ namespace JetBlack.TopicBus.Adapters
                     {
                         // Send the image and mark this client appropriately.
                         _topicCache[topic].ClientStates[clientId] = true;
+
                         _client.Send(clientId, topic, true, _topicCache[topic].Data);
                     }
                 }

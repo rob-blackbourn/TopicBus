@@ -100,7 +100,9 @@ namespace JetBlack.TopicBus.Config
                 return null;
             }
 
-            Type serializerType = Type.GetType(xmlElement.GetAttribute("serializer"));
+            var serializerTypeName = xmlElement.GetAttribute("serializer");
+            Type serializerType = Type.GetType(serializerTypeName
+            );
             if (serializerType == null || !typeof(ISerializer).IsAssignableFrom(serializerType))
             {
                 Log.Error("Unable to read adapter configuration for tag \"serializer\"");

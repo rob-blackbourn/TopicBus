@@ -8,13 +8,10 @@ namespace JetBlack.TopicBus.Config
 
         public int Port;
 
-        public ISerializer Serializer;
-
-        public DistributorConfig(string name, int port, ISerializer serializer)
+        public DistributorConfig(string name, int port)
         {
             Name = name;
             Port = port;
-            Serializer = serializer;
         }
     }
 }

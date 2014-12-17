@@ -16,16 +16,16 @@ namespace JetBlack.TopicBus.Messages
             IsAdd = isAdd;
         }
 
-        new static public SubscriptionRequest Read(Stream stream, Func<Stream, object> dataReader)
+        new static public SubscriptionRequest Read(Stream stream)
         {
             var topic = stream.ReadString();
             var isAdd = stream.ReadBoolean();
             return new SubscriptionRequest(topic, isAdd);
         }
 
-        public override Stream Write(Stream stream, Action<Stream,object> dataWriter)
+        public override Stream Write(Stream stream)
         {
-            base.Write(stream, dataWriter);
+            base.Write(stream);
             stream.Write(Topic);
             stream.Write(IsAdd);
             return stream;

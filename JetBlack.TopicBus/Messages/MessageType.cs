@@ -6,6 +6,6 @@
         UnicastDataMessage,
         ForwardedSubscriptionRequest,
         NotificationRequest,
-        SubscriptionRequest,
+        SubscriptionRequest
     }
 }
