@@ -53,24 +53,6 @@ namespace JetBlack.TopicBus.Adapters
             _thread.Join();
         }
 
-        private byte[] Serialize(object data)
-        {
-            using (var stream = new MemoryStream())
-            {
-                _clientConfig.Serializer.Serialize(stream, data);
-                stream.Flush();
-                return stream.GetBuffer();
-            }
-        }
-
-        private object Deserialize(byte[] data)
-        {
-            using (var stream = new MemoryStream(data))
-            {
-                return _clientConfig.Serializer.Deserialize(stream);
-            }
-        }
-
         public void AddSubscription(string topic)
         {
             Write(new SubscriptionRequest(topic, true));
@@ -83,12 +65,12 @@ namespace JetBlack.TopicBus.Adapters
 
         public void Send(int clientId, string topic, bool isImage, object data)
         {
-            Write(new UnicastDataMessage(clientId, topic, isImage, Serialize(data)));
+            Write(new UnicastDataMessage(clientId, topic, isImage, _clientConfig.Serializer.Serialize(data)));
         }
 
         public void Publish(string topic, bool isImage, object data)
         {
-            Write(new MulticastDataMessage(topic, isImage, Serialize(data)));
+            Write(new MulticastDataMessage(topic, isImage, _clientConfig.Serializer.Serialize(data)));
         }
 
         public virtual void AddNotification(string topicPattern)
@@ -197,12 +179,12 @@ namespace JetBlack.TopicBus.Adapters
 
         void RaiseOnData(MulticastDataMessage message)
         {
-            RaiseOnData(message.Topic, Deserialize(message.Data), false);
+            RaiseOnData(message.Topic, _clientConfig.Serializer.Deserialize(message.Data), false);
         }
 
         void RaiseOnData(UnicastDataMessage message)
         {
-            RaiseOnData(message.Topic, Deserialize(message.Data), true);
+            RaiseOnData(message.Topic, _clientConfig.Serializer.Deserialize(message.Data), true);
         }
 
         void RaiseOnData(string topic, object data, bool isImage)

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace JetBlack.TopicBus.IO
 {
@@ -6,14 +7,25 @@ namespace JetBlack.TopicBus.IO
     {
         static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
-        public object Deserialize(System.IO.Stream stream)
+        public object Deserialize(byte[] bytes)
         {
-            return BinaryFormatter.Deserialize(stream);
+            if (bytes == null || bytes.Length <= 0)
+                return null;
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                return BinaryFormatter.Deserialize(stream);
+            }
         }
 
-        public void Serialize(System.IO.Stream stream, object obj)
+        public byte[] Serialize(object obj)
         {
-            BinaryFormatter.Serialize(stream, obj);
+            using (var stream = new MemoryStream())
+            {
+                BinaryFormatter.Serialize(stream, obj);
+                stream.Flush();
+                return stream.GetBuffer();
+            }
         }
     }
 }
