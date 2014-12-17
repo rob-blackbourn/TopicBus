@@ -3,11 +3,11 @@ using System.IO;
 
 namespace JetBlack.TopicBus.IO
 {
-    public class BinarySerializer : ISerializer
+    public class BinaryEncoder : IByteEncoder
     {
         static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
-        public object Deserialize(byte[] bytes)
+        public object Decode(byte[] bytes)
         {
             if (bytes == null || bytes.Length <= 0)
                 return null;
@@ -18,7 +18,7 @@ namespace JetBlack.TopicBus.IO
             }
         }
 
-        public byte[] Serialize(object obj)
+        public byte[] Encode(object obj)
         {
             using (var stream = new MemoryStream())
             {

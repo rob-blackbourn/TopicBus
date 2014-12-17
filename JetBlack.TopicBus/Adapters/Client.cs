@@ -65,12 +65,12 @@ namespace JetBlack.TopicBus.Adapters
 
         public void Send(int clientId, string topic, bool isImage, object data)
         {
-            Write(new UnicastDataMessage(clientId, topic, isImage, _clientConfig.Serializer.Serialize(data)));
+            Write(new UnicastDataMessage(clientId, topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
         }
 
         public void Publish(string topic, bool isImage, object data)
         {
-            Write(new MulticastDataMessage(topic, isImage, _clientConfig.Serializer.Serialize(data)));
+            Write(new MulticastDataMessage(topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
         }
 
         public virtual void AddNotification(string topicPattern)
@@ -179,12 +179,12 @@ namespace JetBlack.TopicBus.Adapters
 
         void RaiseOnData(MulticastDataMessage message)
         {
-            RaiseOnData(message.Topic, _clientConfig.Serializer.Deserialize(message.Data), false);
+            RaiseOnData(message.Topic, _clientConfig.ByteEncoder.Decode(message.Data), false);
         }
 
         void RaiseOnData(UnicastDataMessage message)
         {
-            RaiseOnData(message.Topic, _clientConfig.Serializer.Deserialize(message.Data), true);
+            RaiseOnData(message.Topic, _clientConfig.ByteEncoder.Decode(message.Data), true);
         }
 
         void RaiseOnData(string topic, object data, bool isImage)

@@ -54,8 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IO\BinarySerializer.cs" />
-    <Compile Include="IO\ISerializer.cs" />
     <Compile Include="IO\NetworkBitConverter.cs" />
     <Compile Include="IO\NetworkExtensions.cs" />
     <Compile Include="Messages\ForwardedSubscriptionRequest.cs" />
@@ -79,6 +77,8 @@
     <Compile Include="Adapters\Client.cs" />
     <Compile Include="Config\DistributorConfig.cs" />
     <Compile Include="Config\ClientConfig.cs" />
+    <Compile Include="IO\BinaryEncoder.cs" />
+    <Compile Include="IO\IByteEncoder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -7,7 +7,7 @@ namespace JetBlack.TopicBus.Config
         public string Name { get; set; }
         public string Host { get; set; }
         public int Port { get; set; }
-        public ISerializer Serializer { get; set; }
+        public IByteEncoder ByteEncoder { get; set; }
     }
 }
 
