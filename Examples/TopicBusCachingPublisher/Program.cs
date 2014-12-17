@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBlack.TopicBus.Adapters;
 using JetBlack.TopicBus.Config;
+using Spring.Context.Support;
 
 namespace TopicBusCachingPublisher
 {
@@ -15,10 +14,11 @@ namespace TopicBusCachingPublisher
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
+            var ctx = ContextRegistry.GetContext();
+            var clientConfig = (ClientConfig)ctx["ClientConfig"];
 
             // Create a client.
-            CachingPublisher client = new CachingPublisher(config.DefaultConfig);
+            var client = new CachingPublisher(clientConfig);
 
             // Attempt to connect.
             try

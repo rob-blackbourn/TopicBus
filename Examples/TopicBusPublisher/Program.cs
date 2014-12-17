@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Net;
 using JetBlack.TopicBus.Adapters;
 using JetBlack.TopicBus.Config;
+using Spring.Context.Support;
 
 namespace TopicBusPublisher
 {
@@ -13,10 +12,11 @@ namespace TopicBusPublisher
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
+            var ctx = ContextRegistry.GetContext();
+            var clientConfig = (ClientConfig)ctx["ClientConfig"];
 
             // Create a client.
-            Client client = new Client(config.DefaultConfig);
+            Client client = new Client(clientConfig);
 
             // Attempt to connect.
             try

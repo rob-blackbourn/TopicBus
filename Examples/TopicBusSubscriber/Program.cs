@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBlack.TopicBus.Adapters;
-using System.Net;
-using JetBlack.TopicBus.IO;
-using System.Configuration;
 using JetBlack.TopicBus.Config;
+using Spring.Context.Support;
 
 namespace TopicBusSubscriber
 {
@@ -14,11 +12,11 @@ namespace TopicBusSubscriber
         {
             log4net.Config.XmlConfigurator.Configure();
 
-
-            var config = (ClientConfigurationSectionHandler)ConfigurationManager.GetSection("topicBusClient");
+            var ctx = ContextRegistry.GetContext();
+            var clientConfig = (ClientConfig)ctx["ClientConfig"];
 
             // Create a client.
-            Client client = new Client(config.DefaultConfig);
+            var client = new Client(clientConfig);
 
             try
             {
