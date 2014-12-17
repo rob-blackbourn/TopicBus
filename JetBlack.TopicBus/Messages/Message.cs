@@ -18,10 +18,10 @@ namespace JetBlack.TopicBus.Messages
 
             switch (messageType)
             {
-                case MessageType.MulticastDataMessage:
-                    return MulticastDataMessage.Read(stream);
-                case MessageType.UnicastDataMessage:
-                    return UnicastDataMessage.Read(stream);
+                case MessageType.MulticastData:
+                    return MulticastData.Read(stream);
+                case MessageType.UnicastData:
+                    return UnicastData.Read(stream);
                 case MessageType.ForwardedSubscriptionRequest:
                     return ForwardedSubscriptionRequest.Read(stream);
                 case MessageType.NotificationRequest:

@@ -59,10 +59,8 @@
     <Compile Include="Messages\ForwardedSubscriptionRequest.cs" />
     <Compile Include="Messages\Message.cs" />
     <Compile Include="Messages\MessageType.cs" />
-    <Compile Include="Messages\MulticastDataMessage.cs" />
     <Compile Include="Messages\NotificationRequest.cs" />
     <Compile Include="Messages\SubscriptionRequest.cs" />
-    <Compile Include="Messages\UnicastDataMessage.cs" />
     <Compile Include="Distributor\Acceptor.cs" />
     <Compile Include="Distributor\Interactor.cs" />
     <Compile Include="Distributor\Market.cs" />
@@ -79,6 +77,8 @@
     <Compile Include="Config\ClientConfig.cs" />
     <Compile Include="IO\BinaryEncoder.cs" />
     <Compile Include="IO\IByteEncoder.cs" />
+    <Compile Include="Messages\MulticastData.cs" />
+    <Compile Include="Messages\UnicastData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

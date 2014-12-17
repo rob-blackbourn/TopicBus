@@ -62,7 +62,7 @@ namespace JetBlack.TopicBus.Distributor
                 _subscriptionCache.Remove(topic);
         }
 
-        void HandleUnicastDataMessage(SourceMessage<UnicastDataMessage> sourceMessage)
+        void HandleUnicastDataMessage(SourceMessage<UnicastData> sourceMessage)
         {
             ISet<Interactor> subscribers;
             if (_subscriptionCache.TryGetValue(sourceMessage.Content.Topic, out subscribers))
@@ -73,7 +73,7 @@ namespace JetBlack.TopicBus.Distributor
             }
         }
 
-        void HandleMulticastDataMessage(SourceMessage<MulticastDataMessage> sourceMessage)
+        void HandleMulticastDataMessage(SourceMessage<MulticastData> sourceMessage)
         {
             ISet<Interactor> subscribers;
             if (_subscriptionCache.TryGetValue(sourceMessage.Content.Topic, out subscribers))
@@ -135,7 +135,7 @@ namespace JetBlack.TopicBus.Distributor
                 ISet<Interactor> subscribers;
                 if (_subscriptionCache.TryGetValue(staleTopic, out subscribers))
                 {
-                    var staleMessage = new MulticastDataMessage(staleTopic, true, null);
+                    var staleMessage = new MulticastData(staleTopic, true, null);
                     foreach (var subscriber in subscribers)
                         subscriber.SendMessage(staleMessage);
                 }

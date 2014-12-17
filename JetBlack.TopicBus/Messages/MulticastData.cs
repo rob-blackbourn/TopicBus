@@ -4,21 +4,21 @@ using JetBlack.TopicBus.IO;
 
 namespace JetBlack.TopicBus.Messages
 {
-    public class MulticastDataMessage : Message
+    public class MulticastData : Message
     {
         public readonly string Topic;
         public readonly bool IsImage;
         public readonly byte[] Data;
 
-        public MulticastDataMessage(string topic, bool isImage, byte[] data)
-            : base(MessageType.MulticastDataMessage)
+        public MulticastData(string topic, bool isImage, byte[] data)
+            : base(MessageType.MulticastData)
         {
             Topic = topic;
             IsImage = isImage;
             Data = data;
         }
 
-        new static public MulticastDataMessage Read(Stream stream)
+        new static public MulticastData Read(Stream stream)
         {
             var topic = stream.ReadString();
             var isImage = stream.ReadBoolean();
@@ -31,7 +31,7 @@ namespace JetBlack.TopicBus.Messages
                     throw new EndOfStreamException();
                 data[i] = (byte)b;
             }
-            return new MulticastDataMessage(topic, isImage, data);
+            return new MulticastData(topic, isImage, data);
         }
 
         public override Stream Write(Stream stream)

@@ -2,8 +2,8 @@
 {
     public enum MessageType : byte
     {
-        MulticastDataMessage,
-        UnicastDataMessage,
+        MulticastData,
+        UnicastData,
         ForwardedSubscriptionRequest,
         NotificationRequest,
         SubscriptionRequest

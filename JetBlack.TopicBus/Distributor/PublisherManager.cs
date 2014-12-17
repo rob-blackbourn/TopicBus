@@ -33,13 +33,13 @@ namespace JetBlack.TopicBus.Distributor
             RemoveInteractor(sourceMessage.Source);
         }
 
-        void PublishUnicastMessage(SourceSinkMessage<UnicastDataMessage> routedMessage)
+        void PublishUnicastMessage(SourceSinkMessage<UnicastData> routedMessage)
         {
             RememberPublisherForTopic(routedMessage.Content.Topic, routedMessage.Source);
             routedMessage.Sink.SendMessage(routedMessage.Content);
         }
 
-        void PublishMulticastMessage(SourceSinkMessage<MulticastDataMessage> routedMessage)
+        void PublishMulticastMessage(SourceSinkMessage<MulticastData> routedMessage)
         {
             RememberPublisherForTopic(routedMessage.Content.Topic, routedMessage.Source);
             routedMessage.Sink.SendMessage(routedMessage.Content);

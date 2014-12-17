@@ -4,15 +4,15 @@ using JetBlack.TopicBus.IO;
 
 namespace JetBlack.TopicBus.Messages
 {
-    public class UnicastDataMessage : Message
+    public class UnicastData : Message
     {
         public readonly int ClientId;
         public readonly string Topic;
         public readonly bool IsImage;
         public readonly byte[] Data;
 
-        public UnicastDataMessage(int clientId, string topic, bool isImage, byte[] data)
-            : base(MessageType.UnicastDataMessage)
+        public UnicastData(int clientId, string topic, bool isImage, byte[] data)
+            : base(MessageType.UnicastData)
         {
             ClientId = clientId;
             Topic = topic;
@@ -20,7 +20,7 @@ namespace JetBlack.TopicBus.Messages
             Data = data;
         }
 
-        new static public UnicastDataMessage Read(Stream stream)
+        new static public UnicastData Read(Stream stream)
         {
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();
@@ -34,7 +34,7 @@ namespace JetBlack.TopicBus.Messages
                     throw new EndOfStreamException();
                 data[i] = (byte)b;
             }
-            return new UnicastDataMessage(clientId, topic, isImage, data);
+            return new UnicastData(clientId, topic, isImage, data);
         }
 
         public override Stream Write(Stream stream)

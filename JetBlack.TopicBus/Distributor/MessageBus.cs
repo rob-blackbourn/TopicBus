@@ -14,10 +14,10 @@ namespace JetBlack.TopicBus.Distributor
         public readonly ISubject<SourceMessage<NotificationRequest>> NotificationRequests = new Subject<SourceMessage<NotificationRequest>>();
         public readonly ISubject<SourceMessage<Regex>> NewNotificationRequests = new Subject<SourceMessage<Regex>>();
 
-        public readonly ISubject<SourceMessage<MulticastDataMessage>> PublishedMulticastDataMessages = new Subject<SourceMessage<MulticastDataMessage>>();
-        public readonly ISubject<SourceMessage<UnicastDataMessage>> PublishedUnicastDataMessages = new Subject<SourceMessage<UnicastDataMessage>>();
-        public readonly ISubject<SourceSinkMessage<MulticastDataMessage>> SendableMulticastDataMessages = new Subject<SourceSinkMessage<MulticastDataMessage>>();
-        public readonly ISubject<SourceSinkMessage<UnicastDataMessage>> SendableUnicastDataMessages = new Subject<SourceSinkMessage<UnicastDataMessage>>();
+        public readonly ISubject<SourceMessage<MulticastData>> PublishedMulticastDataMessages = new Subject<SourceMessage<MulticastData>>();
+        public readonly ISubject<SourceMessage<UnicastData>> PublishedUnicastDataMessages = new Subject<SourceMessage<UnicastData>>();
+        public readonly ISubject<SourceSinkMessage<MulticastData>> SendableMulticastDataMessages = new Subject<SourceSinkMessage<MulticastData>>();
+        public readonly ISubject<SourceSinkMessage<UnicastData>> SendableUnicastDataMessages = new Subject<SourceSinkMessage<UnicastData>>();
 
         public readonly ISubject<SourceMessage<IEnumerable<string>>> StalePublishers = new Subject<SourceMessage<IEnumerable<string>>>();
 

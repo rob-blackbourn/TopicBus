@@ -66,12 +66,12 @@ namespace JetBlack.TopicBus.Distributor
                     }
                     break;
 
-                case MessageType.MulticastDataMessage:
-                    _messageBus.PublishedMulticastDataMessages.OnNext(SourceMessage.Create(sender, (MulticastDataMessage)message));
+                case MessageType.MulticastData:
+                    _messageBus.PublishedMulticastDataMessages.OnNext(SourceMessage.Create(sender, (MulticastData)message));
                     break;
 
-                case MessageType.UnicastDataMessage:
-                    _messageBus.PublishedUnicastDataMessages.OnNext(SourceMessage.Create(sender, (UnicastDataMessage)message));
+                case MessageType.UnicastData:
+                    _messageBus.PublishedUnicastDataMessages.OnNext(SourceMessage.Create(sender, (UnicastData)message));
                     break;
 
                 case MessageType.NotificationRequest:

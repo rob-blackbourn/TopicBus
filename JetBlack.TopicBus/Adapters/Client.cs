@@ -65,12 +65,12 @@ namespace JetBlack.TopicBus.Adapters
 
         public void Send(int clientId, string topic, bool isImage, object data)
         {
-            Write(new UnicastDataMessage(clientId, topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
+            Write(new UnicastData(clientId, topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
         }
 
         public void Publish(string topic, bool isImage, object data)
         {
-            Write(new MulticastDataMessage(topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
+            Write(new MulticastData(topic, isImage, _clientConfig.ByteEncoder.Encode(data)));
         }
 
         public virtual void AddNotification(string topicPattern)
@@ -111,11 +111,11 @@ namespace JetBlack.TopicBus.Adapters
 
                     switch (message.MessageType)
                     {
-                        case MessageType.MulticastDataMessage:
-                            RaiseOnData(message as MulticastDataMessage);
+                        case MessageType.MulticastData:
+                            RaiseOnData(message as MulticastData);
                             break;
-                        case MessageType.UnicastDataMessage:
-                            RaiseOnData(message as UnicastDataMessage);
+                        case MessageType.UnicastData:
+                            RaiseOnData(message as UnicastData);
                             break;
                         case MessageType.ForwardedSubscriptionRequest:
                             RaiseOnForwardedSubscriptionRequest(message as ForwardedSubscriptionRequest);
@@ -177,12 +177,12 @@ namespace JetBlack.TopicBus.Adapters
                 OnForwardedSubscription(message.ClientId, message.Topic, message.IsAdd);
         }
 
-        void RaiseOnData(MulticastDataMessage message)
+        void RaiseOnData(MulticastData message)
         {
             RaiseOnData(message.Topic, _clientConfig.ByteEncoder.Decode(message.Data), false);
         }
 
-        void RaiseOnData(UnicastDataMessage message)
+        void RaiseOnData(UnicastData message)
         {
             RaiseOnData(message.Topic, _clientConfig.ByteEncoder.Decode(message.Data), true);
         }
