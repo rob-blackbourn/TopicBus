@@ -15,13 +15,10 @@ namespace JetBlack.TopicBus.Distributor
 
         int _nextInteractorId;
         readonly TcpListener _listener;
-        readonly DistributorConfig _adapter;
 
-        public Acceptor(DistributorConfig adapter)
+        public Acceptor(DistributorConfig config)
         {
-            _adapter = adapter;
-
-            var endPoint = new IPEndPoint(IPAddress.Any, _adapter.Port);
+            var endPoint = new IPEndPoint(IPAddress.Any, config.Port);
             _listener = new TcpListener(endPoint);
         }
 
