@@ -4,7 +4,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using JetBlack.TopicBus.Config;
+using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Messages;
+using BufferManager = System.ServiceModel.Channels.BufferManager;
 
 namespace JetBlack.TopicBus.Adapters
 {
@@ -21,15 +23,19 @@ namespace JetBlack.TopicBus.Adapters
         public event ClosedCallback OnClosed;
 
         readonly ClientConfig _clientConfig;
+        readonly BufferManager _bufferManager;
         TcpClient _tcpClient;
         bool _isConnected;
         readonly Thread _thread;
         NetworkStream _networkStream;
+        FrameReader _reader;
+        FrameWriter _writer;
         readonly object _syncObject = new object();
 
         public Client(ClientConfig clientConfig)
         {
             _clientConfig = clientConfig;
+            _bufferManager = BufferManager.CreateBufferManager(100, 100000);
             _isConnected = false;
             _thread = new Thread(Dispatch);
         }
@@ -38,6 +44,8 @@ namespace JetBlack.TopicBus.Adapters
         {
             _tcpClient = new TcpClient(_clientConfig.Host, _clientConfig.Port);
             _networkStream = _tcpClient.GetStream();
+            _reader = new FrameReader(_networkStream, _bufferManager);
+            _writer = new FrameWriter(_networkStream);
 
             _thread.Name = string.Format("interactor/{0}", _tcpClient.Client.RemoteEndPoint);
             _isConnected = true;
@@ -107,21 +115,30 @@ namespace JetBlack.TopicBus.Adapters
             {
                 try
                 {
-                    Message message = Message.Read(_networkStream);
-
-                    switch (message.MessageType)
+                    using (var frameContent = _reader.Read())
                     {
-                        case MessageType.MulticastData:
-                            RaiseOnData(message as MulticastData);
-                            break;
-                        case MessageType.UnicastData:
-                            RaiseOnData(message as UnicastData);
-                            break;
-                        case MessageType.ForwardedSubscriptionRequest:
-                            RaiseOnForwardedSubscriptionRequest(message as ForwardedSubscriptionRequest);
-                            break;
-                        default:
-                            throw new ArgumentException("invalid message type");
+                        if (frameContent != null)
+                        {
+                            using (var frameStream = new MemoryStream(frameContent.Buffer, 0, frameContent.Length, false))
+                            {
+                                var message = Message.Read(frameStream);
+
+                                switch (message.MessageType)
+                                {
+                                    case MessageType.MulticastData:
+                                        RaiseOnData(message as MulticastData);
+                                        break;
+                                    case MessageType.UnicastData:
+                                        RaiseOnData(message as UnicastData);
+                                        break;
+                                    case MessageType.ForwardedSubscriptionRequest:
+                                        RaiseOnForwardedSubscriptionRequest(message as ForwardedSubscriptionRequest);
+                                        break;
+                                    default:
+                                        throw new ArgumentException("invalid message type");
+                                }
+                            }
+                        }
                     }
                 }
                 catch (EndOfStreamException)
@@ -168,7 +185,11 @@ namespace JetBlack.TopicBus.Adapters
 
         void Write(Message message)
         {
-            message.Write(_networkStream);
+            using (var frameStream = new MemoryStream())
+            {
+                message.Write(frameStream);
+                _writer.Write(new FrameContent(frameStream.GetBuffer(), (int)frameStream.Length));
+            }
         }
 
         void RaiseOnForwardedSubscriptionRequest(ForwardedSubscriptionRequest message)

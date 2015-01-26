@@ -25,34 +25,44 @@ namespace JetBlack.TopicBus.Messages
             var clientId = stream.ReadInt32();
             var topic = stream.ReadString();
             var isImage = stream.ReadBoolean();
+
             var nbytes = stream.ReadInt32();
             var data = new byte[nbytes];
-            for (int i = 0; i < nbytes; ++i)
+            var offset = 0;
+            while (nbytes > 0)
             {
-                var b = stream.ReadByte();
-                if (b == -1)
+                var bytesRead = stream.Read(data, offset, nbytes);
+                if (bytesRead == 0)
                     throw new EndOfStreamException();
-                data[i] = (byte)b;
+                nbytes -= bytesRead;
+                offset += bytesRead;
             }
+
             return new UnicastData(clientId, topic, isImage, data);
         }
 
         public override Stream Write(Stream stream)
         {
             base.Write(stream);
+
             stream.Write(ClientId);
             stream.Write(Topic);
             stream.Write(IsImage);
-            var data = Data ?? new byte[0];
-            stream.Write(data.Length);
-            for (int i = 0; i < data.Length; ++i)
-                stream.Write(data[i]);
+
+            if (Data == null)
+                stream.Write(0);
+            else
+            {
+                stream.Write(Data.Length);
+                stream.Write(Data, 0, Data.Length);
+            }
+
             return stream;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1} {2} {3} [{4}]", MessageType, ClientId, Topic, IsImage, Data);
+            return string.Format("{0} {1} {2} {3} {4}", MessageType, ClientId, Topic, IsImage, Data == null ? null : Data.Length + " bytes");
         }
     }
 }

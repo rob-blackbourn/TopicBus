@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
+using System.ServiceModel.Channels;
+using System.Threading;
 using log4net;
 using JetBlack.TopicBus.Config;
 
@@ -13,37 +16,71 @@ namespace JetBlack.TopicBus.Distributor
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(Acceptor));
 
+        const int MaxBufferPoolSize = 100;
+        const int MaxBufferSize = 100000;
+
         int _nextInteractorId;
-        readonly TcpListener _listener;
+        readonly Socket _listener;
+        readonly DistributorConfig _config;
+        readonly BufferManager _bufferManager;
+        readonly IDictionary<Socket, Interactor> _interactors;
 
         public Acceptor(DistributorConfig config)
         {
-            var endPoint = new IPEndPoint(IPAddress.Any, config.Port);
-            _listener = new TcpListener(endPoint);
+            _bufferManager = BufferManager.CreateBufferManager(MaxBufferPoolSize, MaxBufferSize);
+            _config = config;
+            _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _interactors = new Dictionary<Socket, Interactor>();
         }
 
         public IObservable<Interactor> ToObservable()
         {
-            _listener.Start();
-
             return Observable.Create<Interactor>(observer =>
                 {
-                    Task.Factory.StartNew(() => Accept(observer));
-                    return Disposable.Create(StopListener);
+                    var cancellationTokenSource = new CancellationTokenSource();
+
+                    var endPoint = new IPEndPoint(IPAddress.Any, _config.Port);
+                    _listener.Bind(endPoint);
+                    _listener.Listen(10);
+
+                    Start(observer, cancellationTokenSource.Token);
+
+                    return Disposable.Create(cancellationTokenSource.Cancel);
                 });
         }
 
-        void Accept(IObserver<Interactor> observer)
+        void Start(IObserver<Interactor> observer, CancellationToken cancellationToken)
         {
+            Log.Info("Start listening");
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var checkRead = new List<Socket>(_interactors.Keys) { _listener };
+
+                Socket.Select(checkRead, null, null, _config.PollTimeout);
+
+                foreach (var socket in checkRead.Where(socket => socket != null))
+                {
+                    if (socket != _listener)
+                        Read(socket);
+                    else if (!Accept(observer))
+                        return;
+                }
+            }
+        }
+
+        bool Accept(IObserver<Interactor> observer)
+        {
+            Log.Info("Accept new connection");
+
             try
             {
-                while (true)
-                {
-                    var tcpClient = _listener.AcceptTcpClient();
-                    var interactor = new Interactor(tcpClient, _nextInteractorId++);
-                    Log.InfoFormat("Accepted new interactor: {0}", interactor);
-                    observer.OnNext(interactor);
-                }
+                var newSocket = _listener.Accept();
+                var interactor = new Interactor(newSocket, _nextInteractorId++, _bufferManager);
+                _interactors.Add(newSocket, interactor);
+                Log.DebugFormat("Accepted {0}", interactor);
+                observer.OnNext(interactor);
+                return true;
             }
             catch (SocketException ex)
             {
@@ -56,12 +93,16 @@ namespace JetBlack.TopicBus.Distributor
             {
                 observer.OnError(ex);
             }
+
+            return false;
         }
 
-        void StopListener()
+        void Read(Socket socket)
         {
-            Log.Info("Closing acceptor");
-            _listener.Stop();
+            var interactor = _interactors[socket];
+            Log.DebugFormat("Reading {0}", interactor);
+            if (!interactor.ReadMessage())
+                _interactors.Remove(socket);
         }
     }
 }

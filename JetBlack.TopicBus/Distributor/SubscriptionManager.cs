@@ -13,7 +13,7 @@ namespace JetBlack.TopicBus.Distributor
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(SubscriptionManager));
 
-        readonly IDictionary<string, ISet<Interactor>> _subscriptionCache = new Dictionary<string, ISet<Interactor>>();
+        readonly IDictionary<string, IDictionary<Interactor, Subscription>> _subscriptionCache = new Dictionary<string, IDictionary<Interactor, Subscription>>();
         readonly MessageBus _messageBus;
 
         public SubscriptionManager(MessageBus messageBus)
@@ -46,7 +46,7 @@ namespace JetBlack.TopicBus.Distributor
             var emptySubscriptions = new List<string>();
             foreach (var item in _subscriptionCache)
             {
-                if (item.Value.Contains(interactor))
+                if (item.Value.ContainsKey(interactor))
                 {
                     item.Value.Remove(interactor);
                     if (item.Value.Count == 0)
@@ -64,10 +64,10 @@ namespace JetBlack.TopicBus.Distributor
 
         void HandleUnicastDataMessage(SourceMessage<UnicastData> sourceMessage)
         {
-            ISet<Interactor> subscribers;
+            IDictionary<Interactor, Subscription> subscribers;
             if (_subscriptionCache.TryGetValue(sourceMessage.Content.Topic, out subscribers))
             {
-                var subscriber = subscribers.FirstOrDefault(x => x.Id == sourceMessage.Content.ClientId);
+                var subscriber = subscribers.FirstOrDefault(x => x.Key.Id == sourceMessage.Content.ClientId).Key;
                 if (subscriber != null)
                     _messageBus.SendableUnicastDataMessages.OnNext(SourceSinkMessage.Create(sourceMessage.Source, subscriber, sourceMessage.Content));
             }
@@ -75,10 +75,10 @@ namespace JetBlack.TopicBus.Distributor
 
         void HandleMulticastDataMessage(SourceMessage<MulticastData> sourceMessage)
         {
-            ISet<Interactor> subscribers;
+            IDictionary<Interactor, Subscription> subscribers;
             if (_subscriptionCache.TryGetValue(sourceMessage.Content.Topic, out subscribers))
             {
-                foreach (var subscriber in subscribers)
+                foreach (var subscriber in subscribers.Keys)
                     _messageBus.SendableMulticastDataMessages.OnNext(SourceSinkMessage.Create(sourceMessage.Source, subscriber, sourceMessage.Content));
             }
         }
@@ -96,22 +96,27 @@ namespace JetBlack.TopicBus.Distributor
         void AddSubscription(string topic, Interactor subscriber)
         {
             // Find the list of interactors that have subscribed to this topic.
-            ISet<Interactor> subscribers;
+            IDictionary<Interactor, Subscription> subscribers;
             if (!_subscriptionCache.TryGetValue(topic, out subscribers))
-                _subscriptionCache.Add(topic, (subscribers = new HashSet<Interactor>()));
+                _subscriptionCache.Add(topic, (subscribers = new Dictionary<Interactor, Subscription>()));
 
-            if (!subscribers.Contains(subscriber))
-                subscribers.Add(subscriber);
+            if (subscribers.ContainsKey(subscriber))
+                ++subscribers[subscriber].SubscriptionCount;
+            else
+                subscribers.Add(subscriber, new Subscription());
         }
 
         void RemoveSubscription(string topic, Interactor subscriber)
         {
-            ISet<Interactor> subscribers;
+            IDictionary<Interactor, Subscription> subscribers;
             if (!_subscriptionCache.TryGetValue(topic, out subscribers))
                 return;
 
-            if (subscribers.Contains(subscriber))
-                subscribers.Remove(subscriber);
+            if (subscribers.ContainsKey(subscriber))
+            {
+                if (--subscribers[subscriber].SubscriptionCount <= 0)
+                    subscribers.Remove(subscriber);
+            }
 
             if (subscribers.Count == 0)
                 _subscriptionCache.Remove(topic);
@@ -123,7 +128,7 @@ namespace JetBlack.TopicBus.Distributor
             {
                 Log.DebugFormat("Notification pattern {0} matched [{1}] subscribers", sourceMessage.Content, string.Join(",", item.Value));
 
-                foreach (var subscriber in item.Value)
+                foreach (var subscriber in item.Value.Keys)
                     sourceMessage.Source.SendMessage(new ForwardedSubscriptionRequest(subscriber.Id, item.Key, true));
             }
         }
@@ -132,11 +137,11 @@ namespace JetBlack.TopicBus.Distributor
         {
             foreach (var staleTopic in forwardedMessage.Content)
             {
-                ISet<Interactor> subscribers;
+                IDictionary<Interactor, Subscription> subscribers;
                 if (_subscriptionCache.TryGetValue(staleTopic, out subscribers))
                 {
                     var staleMessage = new MulticastData(staleTopic, true, null);
-                    foreach (var subscriber in subscribers)
+                    foreach (var subscriber in subscribers.Keys)
                         subscriber.SendMessage(staleMessage);
                 }
             }
@@ -144,6 +149,16 @@ namespace JetBlack.TopicBus.Distributor
 
         public void Dispose()
         {
+        }
+
+        class Subscription
+        {
+            public Subscription()
+            {
+                SubscriptionCount = 1;
+            }
+
+            public int SubscriptionCount;
         }
     }
 }

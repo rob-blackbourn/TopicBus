@@ -1,25 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
+using System.Threading;
+using JetBlack.TopicBus.IO;
 using JetBlack.TopicBus.Messages;
+using log4net;
+using BufferManager = System.ServiceModel.Channels.BufferManager;
 
 namespace JetBlack.TopicBus.Distributor
 {
     class Interactor : IDisposable, IEquatable<Interactor>, IComparable<Interactor>
     {
-        public readonly int Id;
-        readonly TcpClient _tcpClient;
-        readonly Stream _stream;
+        static readonly ILog Log = LogManager.GetLogger(typeof(Interactor));
 
-        public Interactor(TcpClient tcpClient, int id)
+        readonly Socket _socket;
+        public readonly int Id;
+        readonly BufferManager _bufferManager;
+        readonly FrameReader _reader;
+        readonly FrameWriter _writer;
+        IObserver<Message> _observer;
+        readonly ManualResetEvent _waitEvent;
+
+        public Interactor(Socket socket, int id, BufferManager bufferManager)
         {
-            _tcpClient = tcpClient;
+            _socket = socket;
             Id = id;
-            _stream = tcpClient.GetStream();
+            _bufferManager = bufferManager;
+            var stream = new NetworkStream(_socket, true);
+            _reader = new FrameReader(stream, bufferManager);
+            _writer = new FrameWriter(stream);
+            _observer = new PendingObserver();
+            _waitEvent = new ManualResetEvent(true);
         }
 
         public IObservable<Message> ToObservable()
@@ -27,55 +42,83 @@ namespace JetBlack.TopicBus.Distributor
             return Observable.Create<Message>(
                 observer =>
                 {
-                    Task.Factory.StartNew(() => Dispatch(observer));
+                    _waitEvent.Reset();
 
-                    return Disposable.Create(() =>
-                        {
-                            _stream.Close();
-                            _tcpClient.Close();
-                        });
+                    var pendingObserver = (PendingObserver)Interlocked.Exchange(ref _observer, observer);
+
+                    foreach (var message in pendingObserver.Messages)
+                        _observer.OnNext(message);
+
+                    if (pendingObserver.Error != null)
+                        _observer.OnError(pendingObserver.Error);
+                    else if (pendingObserver.IsCompleted)
+                        _observer.OnCompleted();
+
+                    _waitEvent.Set();
+
+
+                    return Disposable.Create(_socket.Close);
                 }
             );
         }
 
-        void Dispatch(IObserver<Message> observer)
+        public bool ReadMessage()
         {
+            Log.DebugFormat("Reading {0}", this);
+
             try
             {
-                while (_tcpClient.Connected)
+                _waitEvent.WaitOne();
+                using (var frameContent = _reader.Read())
                 {
-                    var message = Message.Read(_stream);
-                    observer.OnNext(message);
+                    if (frameContent != null)
+                    {
+                        using (var frameStream = new BufferedMemoryStream(frameContent.Buffer, frameContent.Length))
+                        {
+                            var message = Message.Read(frameStream);
+                            Log.DebugFormat("Read {0} ({1})", this, message);
+                            _observer.OnNext(message);
+                        }
+                    }
                 }
+                return true;
             }
             catch (EndOfStreamException)
             {
-                observer.OnCompleted();
+                _observer.OnCompleted();
             }
             catch (Exception ex)
             {
-                observer.OnError(ex);
+                _observer.OnError(ex);
             }
+
+            return false;
         }
 
         public void SendMessage(Message message)
         {
-            message.Write(_stream);
+            Log.DebugFormat("Sending {0} ({1})", this, message);
+
+            using (var frameStream = new BufferedMemoryStream(_bufferManager, 256))
+            {
+                message.Write(frameStream);
+                _writer.Write(new FrameContent(frameStream.GetBuffer(), (int)frameStream.Length));
+            }
         }
 
         public IPEndPoint LocalEndPoint
         {
-            get { return (IPEndPoint)_tcpClient.Client.LocalEndPoint; }
+            get { return (IPEndPoint)_socket.LocalEndPoint; }
         }
 
         public IPEndPoint RemoteEndPoint
         {
-            get { return (IPEndPoint)_tcpClient.Client.RemoteEndPoint; }
+            get { return (IPEndPoint)_socket.RemoteEndPoint; }
         }
 
         public Socket Socket
         {
-            get { return _tcpClient.Client; }
+            get { return _socket; }
         }
 
         public override string ToString()
@@ -105,7 +148,38 @@ namespace JetBlack.TopicBus.Distributor
 
         public void Dispose()
         {
-            _tcpClient.Close();
+            _socket.Close();
+        }
+
+        private class PendingObserver : IObserver<Message>
+        {
+            public List<Message> Messages = new List<Message>();
+            public Exception Error;
+            public bool IsCompleted;
+
+            public void OnNext(Message value)
+            {
+                lock (this)
+                {
+                    Messages.Add(value);
+                }
+            }
+
+            public void OnError(Exception error)
+            {
+                lock (this)
+                {
+                    Error = error;
+                }
+            }
+
+            public void OnCompleted()
+            {
+                lock (this)
+                {
+                    IsCompleted = true;
+                }
+            }
         }
     }
 }
